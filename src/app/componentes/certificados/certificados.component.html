@@ -1,0 +1,55 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-brand" (click)="irAInicio()">EventosApp</a>
+    <ul class="navbar-menu">
+ 
+     
+   
+    </ul>
+  </div>  
+</nav>
+
+<div class="certificados-container">
+  <h1>Ver Certificados</h1>
+
+  <form (ngSubmit)="obtenerCertificados()">
+    <label for="email">Correo Electrónico:</label>
+    <input
+      id="email"
+      type="email"
+      [(ngModel)]="email"
+      name="email"
+      required
+      placeholder="Ingresa tu correo"
+    />
+    <button type="submit" class="btn btn-primary">Generar Certificados</button>
+  </form>
+
+  <div *ngIf="certificados.length > 0">
+    <h2>Eventos Confirmados</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Fecha</th>
+          <th>Ubicacion</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let certificado of certificados">
+          <td>{{ certificado.nombre }}</td>
+          <td>{{ certificado.descripcion || 'N/A' }}</td>
+          <td>{{ certificado.fecha | date: 'shortDate' }}</td>
+          <td>{{ certificado.ubicacion || 'N/A' }}</td>
+          <td>
+            <button (click)="imprimirCertificado(certificado)" class="btn btn-success">
+              Imprimir
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

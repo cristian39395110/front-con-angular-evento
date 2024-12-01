@@ -1,0 +1,78 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-brand" (click)="irAInicio()">EventosApp</a>
+    <ul class="navbar-menu">
+      <li>
+        <a class="navbar-link" (click)="irACertificados()">Ver Certificados</a>
+      </li>
+      <li *ngIf="usuarioLogueado">
+        <a class="navbar-link" [routerLink]="'/gestion-eventos'">Gestionar Eventos</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+
+<!-- Tabla para listar eventos -->
+<table class="tabla-gestion">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Fecha</th>
+      <th>Descripción</th>
+      <th>Ubicación</th>
+      <th>Imagen</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let evento of eventos">
+      <td>{{ evento.nombre }}</td>
+      <td>{{ evento.fecha | date: 'shortDate' }}</td>
+      <td>{{ evento.descripcion }}</td>
+      <td>{{ evento.ubicacion }}</td>
+      <td>
+        <img *ngIf="evento.imagen" [src]="'http://localhost:3000' + evento.imagen" alt="Evento" width="50" />
+      </td>
+      <td>
+        <button class="btn btn-warning" (click)="abrirModalEditar(evento)">Editar</button>
+        <button class="btn btn-danger" (click)="eliminarEvento(evento.idEvento)">Eliminar</button>
+        <button class="btn btn-success mb-3" (click)="abrirModalCrear()">Nuevo Evento</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Modal para crear o editar eventos -->
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-content">
+    <h2>{{ esEdicion ? 'Editar Evento' : 'Crear Nuevo Evento' }}</h2>
+    <form (ngSubmit)="esEdicion ? actualizarEvento() : crearEvento()">
+      <label for="nombre">Nombre del Evento:</label>
+      <input id="nombre" [(ngModel)]="eventoActual.nombre" name="nombre" required class="form-control" />
+
+      <label for="fecha">Fecha:</label>
+      <input id="fecha" [(ngModel)]="eventoActual.fecha" name="fecha" type="date" required class="form-control" />
+
+      <label for="ubicacion">Ubicación:</label>
+      <input id="ubicacion" [(ngModel)]="eventoActual.ubicacion" name="ubicacion" required class="form-control" />
+
+      <label for="descripcion">Descripción:</label>
+      <textarea
+        id="descripcion"
+        [(ngModel)]="eventoActual.descripcion"
+        name="descripcion"
+        required
+        class="form-control"
+      ></textarea>
+
+      <label for="imagen">Imagen:</label>
+      <input type="file" id="imagen" (change)="onImageSelected($event)" class="form-control" />
+
+      <div class="modal-actions">
+        <button type="submit" class="btn btn-primary">{{ esEdicion ? 'Guardar Cambios' : 'Crear Evento' }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

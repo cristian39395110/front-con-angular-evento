@@ -1,0 +1,166 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="navbar-brand" (click)="irAInicio()">EventosApp</a>
+    <ul class="navbar-menu">
+      <li>
+        <a class="navbar-link" (click)="irACertificados()">Ver Certificados</a>
+      </li>
+      <li *ngIf="usuarioLogueado">
+        <a class="navbar-link" [routerLink]="'/gestion-eventos'">Gestionar Eventos</a>
+      </li>
+      <li>
+        <button
+          *ngIf="usuarioLogueado; else login"
+          class="navbar-button"
+          (click)="logout()"
+        >
+          Cerrar Sesión
+        </button>
+        <ng-template #login>
+          <button class="navbar-button" (click)="irALogin()">Iniciar Sesión</button>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="eventos-container">
+
+
+  <div class="eventos-grid">
+    <div class="evento-card" *ngFor="let evento of eventos" (click)="abrirModal(evento)">
+      <!-- Imagen del evento -->
+      <div class="card-image">
+        <img *ngIf="evento.imagen" [src]="'http://localhost:3000' + evento.imagen" alt="Evento" />
+      </div>
+      <!-- Detalles del evento -->
+      <div class="card-content">
+        <h3>{{ evento.nombre }}</h3>
+        <p class="descripcion">{{ evento.descripcion }}</p>
+        <p><strong>Fecha:</strong> {{ evento.fecha | date: 'shortDate' }}</p>
+        <button class="btn btn-primary" (click)="abrirModalDetalles(evento, $event)">
+          Ver Detalles
+        </button>
+      </div>
+    </div>
+  </div>
+    
+  <!-- Modal para Inscripción o Usuarios Asistentes -->
+  <div class="modal" *ngIf="mostrarModal">
+    <div class="modal-content">
+      <h2>{{ eventoSeleccionado?.nombre }}</h2>
+
+      <div *ngIf="usuarioLogueado; else noLogueado">
+        <h3 class="mb-4 text-center">Usuarios Inscritos</h3>
+        <div *ngIf="usuariosInscritos.length > 0; else noUsuarios">
+          <!-- Campo de búsqueda -->
+          <div class="mb-3">
+            <input
+              type="text"
+              [(ngModel)]="filtro"
+              placeholder="Buscar por correo o nombre"
+              class="form-control"
+            />
+          </div>
+          <!-- Tabla estilizada -->
+          <table class="table table-bordered table-hover table-striped">
+            <thead class="table-dark">
+              <tr>
+                <th>Email</th>
+                <th>Confirmación</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let usuario of usuariosInscritos | filtro: filtro">
+                <td>{{ usuario.email }}</td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.bg-success]="usuario.confirmacion"
+                    [class.bg-danger]="!usuario.confirmacion"
+                  >
+                    {{ usuario.confirmacion ? 'Confirmado' : 'No Confirmado' }}
+                  </span>
+                </td>
+                <td>
+                  <button
+                    *ngIf="!usuario.confirmacion"
+                    class="btn btn-success btn-sm me-2"
+                    (click)="marcarAsistencia(usuario.idParticipacion)"
+                  >
+                    Marcar Presente
+                  </button>
+                  <button
+                    *ngIf="usuario.confirmacion"
+                    class="btn btn-danger btn-sm"
+                    (click)="anularAsistencia(usuario.idParticipacion)"
+                  >
+                    Anular Asistencia
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ng-template #noUsuarios>
+          <p class="text-muted text-center">No hay usuarios inscritos en este evento.</p>
+        </ng-template>
+      </div>
+      
+
+      <ng-template #noLogueado>
+        <h3>Inscribirse al Evento</h3>
+        <form (ngSubmit)="inscribirse()" class="inscripcion-formulario">
+          <div class="form-group" >
+            <label for="email">Correo Electrónico:</label>
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              class="form-control"
+              required
+              placeholder="Ingresa tu correo"
+            />
+          </div>
+          <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input
+              id="nombre"
+              type="text"
+              [(ngModel)]="nombre"
+              name="nombre"
+              class="form-control"
+              required
+              placeholder="Ingresa tu nombre"
+            />
+          </div>
+          <div *ngIf="error" class="error">{{ error }}</div>
+          <button type="submit" class="btn btn-primary">Inscribirse</button>
+        </form>
+      </ng-template>
+
+      <button class="close-button" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para Detalles del Evento -->
+  <div class="modal" *ngIf="mostrarModalDetalles">
+    <div class="modal-content modal-evento">
+      <!-- Imagen destacada -->
+      <div class="modal-image">
+        <img *ngIf="eventoSeleccionado?.imagen" [src]="'http://localhost:3000' + eventoSeleccionado.imagen" alt="{{ eventoSeleccionado?.nombre }}">
+      </div>
+      <!-- Detalles del evento -->
+      <div class="modal-details">
+        <h2>{{ eventoSeleccionado?.nombre }}</h2>
+        <p><strong>Fecha:</strong> {{ eventoSeleccionado?.fecha | date: 'shortDate' }}</p>
+        <p><strong>Ubicación:</strong> {{ eventoSeleccionado?.ubicacion }}</p>
+        <p><strong>Descripción:</strong> {{ eventoSeleccionado?.descripcion }}</p>
+        <button class="close-button" (click)="cerrarModalDetalles()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  
+</div>
